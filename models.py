@@ -1,13 +1,11 @@
 import torch.nn as nn
 from torchvision import models
 from torchvision.models import ResNet18_Weights, VGG16_BN_Weights, Inception_V3_Weights, GoogLeNet_Weights
-import torch
-
 import torch.nn as nn
 from torchvision import models
 import torch
 
-class MLC_Model(nn.Module):
+class MultiLabelClassification_Model(nn.Module):
 
     def __init__(self, num_classes: int, model: nn.Module) -> None:
         super(MLC_Model, self).__init__()
@@ -42,6 +40,7 @@ class MLC_Model(nn.Module):
             # The models has 2 outputs when training.
             x, aux = self.model(x)
             return x, aux
+            
         return self.model(x)  # Other models have 1 output
 
 
@@ -53,7 +52,7 @@ if __name__ == "__main__":
     print(Res_Net18.fc.in_features)
     print(Res_Net18.fc.out_features)
 
-    model = MLC_Model(8, Res_Net18)
+    model = MultiLabelClassification_Model(8, Res_Net18)
 
     print(model)
     print(model.model.fc)

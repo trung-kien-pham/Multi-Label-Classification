@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 class MultiLabelDataset(Dataset):
 
-    def __init__(self, df, image_root: str, image_size: tuple, transform=None) -> None:
+    def __init__(self, df, image_size: tuple, transform=None) -> None:
 
         """
         Dataset for multi-label classification.
@@ -23,20 +23,17 @@ class MultiLabelDataset(Dataset):
         """
 
         self.df = df
-        self.image_root = image_root
         self.image_size = image_size
         self.transform = transform
-        # self.labels = self.df.iloc[:, 3:-1].values.astype(np.float32)  # Take the label columns, drop the SUM column
-        self.labels = self.df.iloc[:, 3:-1].fillna(0.0).values.astype(np.float32)  # Replace NaN with 0.0
-        self.names = self.df["filename"].tolist()  # Column containing the path to the image
-        self.categories = self.df["dataset"].tolist() # Train, val, test categories
+        self.labels = self.df.iloc[:, 3:].fillna(0.0).values.astype(np.float32)  # Replace NaN with 0.0
+        self.path = self.df["path"].tolist()  # Column containing the path to the image
 
     def __len__(self):
-        return len(self.names)
+        return len(self.path)
 
     def __getitem__(self, idx: int) -> dict:
 
-        img_path = os.path.join(self.image_root ,self.categories[idx], self.names[idx])
+        img_path = os.path.join(self.path[idx])
         
         # Read image, handle error if image cannot be opened
         try:
@@ -56,7 +53,7 @@ class MultiLabelDataset(Dataset):
         return sample
 
 
-def load_data(csv_path: str, image_root: str) -> tuple:
+def load_data(csv_path: str) -> tuple:
 
     """
     Read CSV file, process data, and split into train, val, test sets.
@@ -84,16 +81,15 @@ def load_data(csv_path: str, image_root: str) -> tuple:
 
 if __name__ == "__main__":
 
-    csv_path = "Variant-b(MultiLabel Classification)/Multi-Label dataset - with augmented.csv"
-    image_root = "Variant-b(MultiLabel Classification)/"
+    csv_path = "Variant-b(MultiLabel Classification)/Multi-Label dataset.csv"
     image_size = (224, 224)
 
-    train_df, val_df, test_df = load_data(csv_path, image_root)
+    train_df, val_df, test_df = load_data(csv_path)
 
     # Create dataset
-    train_dataset = MultiLabelDataset(train_df, image_root, image_size)
-    val_dataset = MultiLabelDataset(val_df, image_root, image_size)
-    test_dataset = MultiLabelDataset(test_df, image_root, image_size)
+    train_dataset = MultiLabelDataset(train_df, image_size)
+    val_dataset = MultiLabelDataset(val_df, image_size)
+    test_dataset = MultiLabelDataset(test_df, image_size)
 
     # Dataloader
     train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=2)
@@ -105,15 +101,15 @@ if __name__ == "__main__":
     print("Image shape:", sample["image"].shape)
     print("Label shape:", sample["label"].shape)
 
-    for i, train in enumerate(train_loader):
+    # for i, train in enumerate(train_loader):
 
-        img = train["image"].squeeze().permute(1, 2, 0).numpy()
-        l = train["label"].tolist()[0]
+    #     img = train["image"].squeeze().permute(1, 2, 0).numpy()
+    #     l = train["label"].tolist()[0]
 
-        if i > 1:
-            break
+    #     if i > 1:
+    #         break
 
-        print(l)
-        plt.title(l)
-        plt.imshow(img)
-        plt.show()
+    #     print(l)
+    #     plt.title(l)
+    #     plt.imshow(img)
+    #     plt.show()

@@ -112,7 +112,7 @@ class Train:
 
 
 if __name__ == "__main__":
-    from models import MLC_Model
+    from models import MultiLabelClassification_Model
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     models.googlenet(weights=GoogLeNet_Weights.IMAGENET1K_V1)
     ]
 
-    models_list = [MLC_Model(8, base_model) for base_model in base_models]
+    models_list = [MultiLabelClassification_Model(8, base_model) for base_model in base_models]
 
     trainer = Train(
         models_list=models_list,
