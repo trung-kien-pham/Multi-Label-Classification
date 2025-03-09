@@ -5,7 +5,6 @@ import cv2
 from tqdm.auto import tqdm
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
-from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
 
@@ -71,12 +70,15 @@ def load_data(csv_path: str) -> tuple:
     # Rename columns if necessary
     df.columns = ["dataset", "filename", "path"] + df.columns[3:].tolist()
 
+    # Get classes name
+    class_names = df.columns[3:].tolist()
+
     # Filter data by set
     train_df = df[df["dataset"] == "train"].reset_index(drop=True)
     val_df = df[df["dataset"] == "val"].reset_index(drop=True)
     test_df = df[df["dataset"] == "test"].reset_index(drop=True)
 
-    return train_df, val_df, test_df
+    return train_df, val_df, test_df, class_names
 
 
 if __name__ == "__main__":
@@ -84,7 +86,9 @@ if __name__ == "__main__":
     csv_path = "Variant-b(MultiLabel Classification)/Multi-Label dataset.csv"
     image_size = (224, 224)
 
-    train_df, val_df, test_df = load_data(csv_path)
+    train_df, val_df, test_df, class_names = load_data(csv_path)
+
+    print(class_names)
 
     # Create dataset
     train_dataset = MultiLabelDataset(train_df, image_size)
@@ -101,15 +105,15 @@ if __name__ == "__main__":
     print("Image shape:", sample["image"].shape)
     print("Label shape:", sample["label"].shape)
 
-    # for i, train in enumerate(train_loader):
+    for i, train in enumerate(train_loader):
 
-    #     img = train["image"].squeeze().permute(1, 2, 0).numpy()
-    #     l = train["label"].tolist()[0]
+        img = train["image"].squeeze().permute(1, 2, 0).numpy()
+        l = train["label"].tolist()[0]
 
-    #     if i > 1:
-    #         break
+        if i > 2:
+            break
 
-    #     print(l)
-    #     plt.title(l)
-    #     plt.imshow(img)
-    #     plt.show()
+        print(l)
+        plt.title(l)
+        plt.imshow(img)
+        plt.show()
